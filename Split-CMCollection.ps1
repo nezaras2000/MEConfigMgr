@@ -16,8 +16,12 @@ function Split-CMCollection {
         .NOTES
             Author:  Nizar Sebahi
             Email:   nezaras2000@hotmail.com
-            Version: 1.00.00
-            Date:    2021-06-18
+            Version: 0.1.1
+            Date:    2022-03-23
+
+            Version History:
+            0.1.1 (2022-03-23) Import ConfigurationManager module and set CMSite drive
+            0.1.0 (2021-06-18) skript created
     #>
     param (
         # The Name of the "Limiting Collection"
@@ -33,7 +37,10 @@ function Split-CMCollection {
         [Parameter(Mandatory)]
         [string]$NewCollectionNamePattern
     )
-    Import-Module "$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1"
+    # Import the ConfigurationManager.psd1 module 
+    if( $null -eq (Get-Module ConfigurationManager)) {
+        Import-Module "$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1"
+    }
     Set-Location "$((Get-PSDrive -PSProvider CMSite).name):\"
     $Devices = Get-CMDevice -CollectionName $CollectionName
     $NumberOfDevices = $Devices.Count
