@@ -1,0 +1,2 @@
+# MEConfigMgr
+Configuration Manager script
