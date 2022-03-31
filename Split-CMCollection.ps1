@@ -41,7 +41,7 @@ function Split-CMCollection {
     if( $null -eq (Get-Module ConfigurationManager)) {
         Import-Module "$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1"
     }
-    Set-Location "$((Get-PSDrive -PSProvider CMSite).name):\"
+    Set-Location "$((Get-PSDrive -PSProvider CMSite).name):"
     $Devices = Get-CMDevice -CollectionName $CollectionName
     $NumberOfDevices = $Devices.Count
     Write-Verbose "$NumberOfDevices devices will be divided"
