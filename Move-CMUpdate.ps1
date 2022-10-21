@@ -2,6 +2,8 @@ function Move-CMUpdates {
     <#
         .PARAMETER DestinationSUGroup
             Define software Update Group to move the old updates to.
+        .EXAMPLE
+            Move-CMUpdates
         .NOTES
             Author:  Nizar Sebahi
             Email:   nezaras2000@hotmail.com
@@ -10,7 +12,7 @@ function Move-CMUpdates {
     #>
     param(
         [string]$DestinationSUGroup,
-        [String]$Filter = "Windows 10 Updadates",
+        [String]$Filter = "Monthly Windows 10 Updates",
         [String]$Description = "Added to $DestinationSUGroup SUG"
     )
     #Region Set CM drive as a command drive
