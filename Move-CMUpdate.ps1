@@ -11,8 +11,8 @@ function Move-CMUpdates {
             Date:    2022-03-31
     #>
     param(
-        [string]$DestinationSUGroup,
-        [String]$Filter = "Monthly Windows 10 Updates",
+        [Parameter(Mandatory)][string]$DestinationSUGroup,
+        [Parameter(Mandatory)][String]$Filter,
         [String]$Description = "Added to $DestinationSUGroup SUG"
     )
     #Region Set CM drive as a command drive
