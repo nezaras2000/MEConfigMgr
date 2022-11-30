@@ -24,7 +24,8 @@ function Move-CMUpdates {
     
     #Region Create SU Group if it does not exist
     if(!(Get-CMSoftwareUpdateGroup -Name $DestinationSUGroup)){
-        New-CMSoftwareUpdateGroup -Name $DestinationSUGroup -Description "$Filter older than two month" -Confirm:$true
+        Write-Verbose "Creating software update group $DestinationSUGroup ..."
+        New-CMSoftwareUpdateGroup -Name $DestinationSUGroup -Description "$Filter older than two month" -Confirm:$true | Out-Null
     }
     $SUGs = Get-CMSoftwareUpdateGroup | Where-Object {$_.LocalizedDisplayName -like "$($Filter)*" -and $_.datecreated -LT ((Get-Date).AddDays(-70))}
     #$Updates = $SUGs | Get-CMSoftwareUpdate -Fast
