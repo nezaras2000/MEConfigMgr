@@ -397,12 +397,10 @@ Function New-WPFMessageBox {
         }
 
         # If a timeout value is provided, use a dispatcher timer to close the window when timeout is reached
-        If ($Timeout)
-        {
+        If ($Timeout){
             $Stopwatch = New-object System.Diagnostics.Stopwatch
             $TimerCode = {
-                If ($Stopwatch.Elapsed.TotalSeconds -ge $Timeout)
-                {
+                If ($Stopwatch.Elapsed.TotalSeconds -ge $Timeout){
                     $Stopwatch.Stop()
                     $Window.Close()
                 }
@@ -415,8 +413,7 @@ Function New-WPFMessageBox {
         }
 
         # Play a sound
-        If ($($PSBoundParameters.Sound))
-        {
+        If ($($PSBoundParameters.Sound)){
             $SoundFile = "$env:SystemDrive\Windows\Media\$($PSBoundParameters.Sound).wav"
             $SoundPlayer = New-Object System.Media.SoundPlayer -ArgumentList $SoundFile
             $SoundPlayer.Add_LoadCompleted({
@@ -425,10 +422,8 @@ Function New-WPFMessageBox {
             })
             $SoundPlayer.LoadAsync()
         }
-
         # Display the window
         $null = $window.Dispatcher.InvokeAsync{$window.ShowDialog()}.Wait()
-
     }
 }
 $WindowsVersion = Get-ComputerInfo | Select-Object WindowsProductName,OSDisplayVersion
@@ -442,15 +437,15 @@ $TextBlock.HorizontalAlignment = "Center"
 
 Function Get-InstalledApps{
     $CheckApps = (
-                    "Microsoft 365-appar för företag - sv-se",
-                    "Microsoft 365 Apps for enterprise - en-us",
-                    "Microsoft 365 Apps for enterprise - da-dk",
-                    "*Xearch*",
-                    "Adobe Acrobat*",
-                    "Microsoft Visual C++ 20* Redistributable*",
-                    "Microsoft Edge",
-                    "Local Administrator Password Solution",
-                    "Trend Micro Apex One Security Agent"
+        "Microsoft 365-appar för företag - sv-se",
+        "Microsoft 365 Apps for enterprise - en-us",
+        "Microsoft 365 Apps for enterprise - da-dk",
+        "*Xearch*",
+        "Adobe Acrobat*",
+        "Microsoft Visual C++ 20* Redistributable*",
+        "Microsoft Edge",
+        "Local Administrator Password Solution",
+        "Trend Micro Apex One Security Agent"
     )
     $AppsList = @()
     foreach ($App in $CheckApps){
@@ -460,32 +455,27 @@ Function Get-InstalledApps{
     $AppsList += Get-AppxPackage -Name "MSTeams" |Select-Object @{l="DisplayName";e={$_.Name}}, @{l="DisplayVersion";e={$_.Version}}
     $AppsList | Sort-Object DisplayName
 }
-
 $Fields2 = @(
     'DisplayName'
     'DisplayVersion'
 )
-
 $Apps = Get-InstalledApps
 $Datatable2 = New-Object System.Data.DataTable
 [void]$Datatable2.Columns.AddRange($Fields2)
 foreach ($App in $Apps){
     $Array = @()
-    Foreach ($Field in $Fields2)
-    {
+    Foreach ($Field in $Fields2){
         $array += $App.$Field
     }
     [void]$Datatable2.Rows.Add($array)
 }
-    # Create an expander
+    #Region Create expander2 and datagrid objects
     $Expander2 = New-Object System.Windows.Controls.Expander
     $Expander2.Header = "Applications"
     $Expander2.FontSize = 14
     $Expander2.Padding = 5
     $Expander2.Margin = "5,10,5,0"
 
-
-# Create a datagrid object and populate with datatable
     $DataGrid2 = New-Object System.Windows.Controls.DataGrid
     $DataGrid2.ItemsSource = $Datatable2.DefaultView
     $DataGrid2.CanUserAddRows = $False
@@ -494,6 +484,7 @@ foreach ($App in $Apps){
     $DataGrid2.FontSize = 10
     $DataGrid2.BorderThickness = 0
     $Expander2.Content = $DataGrid2
+    #EndRegion Create expander2 and datagrid objects
 
 
 #Get specific registry key details 
@@ -529,16 +520,13 @@ foreach ($Time in $TimeZone)
     [void]$Datatable4.Rows.Add($array)
 }
 
-
-    # Create an exander
+    #Region Create expander4 and datagrid objects
     $Expander4 = New-Object System.Windows.Controls.Expander
     $Expander4.Header = "Regional Settings"
     $Expander4.FontSize = 14
     $Expander4.Padding = 5
     $Expander4.Margin = "5,20,5,0"
 
-
-# Create a datagrid object and populate with datatable
     $DataGrid4 = New-Object System.Windows.Controls.DataGrid
     $DataGrid4.ItemsSource = $Datatable4.DefaultView
     $DataGrid4.CanUserAddRows = $False
@@ -547,8 +535,7 @@ foreach ($Time in $TimeZone)
     $DataGrid4.FontSize = 10
     $DataGrid4.BorderThickness = 0
     $Expander4.Content = $DataGrid4
-
-
+    #EndRegion Create expander4 and datagrid objects
 Function Get-GPOStatus {
     $Lang = Get-SystemLanguage
     switch ($Lang) {
@@ -575,8 +562,7 @@ $Fields6 = @(
 $GPO = Get-GPOStatus
 $Datatable6 = New-Object System.Data.DataTable
 [void]$Datatable6.Columns.AddRange($Fields6)
-foreach ($Rec in $GPO)
-{
+foreach ($Rec in $GPO){
     $Array = @()
     Foreach ($Field in $Fields6)
     {
@@ -584,17 +570,13 @@ foreach ($Rec in $GPO)
     }
     [void]$Datatable6.Rows.Add($array)
 }
-
-
-    # Create an exander
+    #Region Create expander6 and datagrid objects
     $Expander6 = New-Object System.Windows.Controls.Expander
     $Expander6.Header = "Group Policy Update (Last Time)"
     $Expander6.FontSize = 14
     $Expander6.Padding = 5
     $Expander6.Margin = "5,15,5,0"
 
-
-# Create a datagrid object and populate with datatable
     $DataGrid6 = New-Object System.Windows.Controls.DataGrid
     $DataGrid6.ItemsSource = $Datatable6.DefaultView
     $DataGrid6.CanUserAddRows = $False
@@ -603,14 +585,11 @@ foreach ($Rec in $GPO)
     $DataGrid6.FontSize = 10
     $DataGrid6.BorderThickness = 0
     $Expander6.Content = $DataGrid6
+    #EndRegion Create expander6 and datagrid objects
 
-#Check Bitlocker status for 'C' drive 
-Function Check-Bitlocker
-{  
+Function Get-BitlockerStatus{
 Get-BitLockerVolume | Select-Object Mountpoint,VolumeType, volumestatus, EncryptionPercentage
 }
-
-
 
 $Fields7 = @(
     'MountPoint'
@@ -618,30 +597,24 @@ $Fields7 = @(
     'VolumeStatus'
     'EncryptionPercentage'
 )
-
-$BitLocker = Check-Bitlocker
+$BitLocker = Get-BitlockerStatus
 $Datatable7 = New-Object System.Data.DataTable
 [void]$Datatable7.Columns.AddRange($Fields7)
-foreach ($Stat in $BitLocker)
-{
+foreach ($Stat in $BitLocker){
     $Array = @()
-    Foreach ($Field in $Fields7)
-    {
+    Foreach ($Field in $Fields7){
         $array += $Stat.$Field
     }
     [void]$Datatable7.Rows.Add($array)
 }
 
-
-    # Create an exander
+    #Region Create expander7 and datagrid objects
     $Expander7 = New-Object System.Windows.Controls.Expander
     $Expander7.Header = "Bitlocker Status"
     $Expander7.FontSize = 14
     $Expander7.Padding = 5
     $Expander7.Margin = "5,15,5,0"
 
-
-# Create a datagrid object and populate with datatable
     $DataGrid7 = New-Object System.Windows.Controls.DataGrid
     $DataGrid7.ItemsSource = $Datatable7.DefaultView
     $DataGrid7.CanUserAddRows = $False
@@ -650,24 +623,18 @@ foreach ($Stat in $BitLocker)
     $DataGrid7.FontSize = 10
     $DataGrid7.BorderThickness = 0
     $Expander7.Content = $DataGrid7
-
-Function Get-missingPnPDrivers
-{
-Get-WmiObject Win32_PNPEntity | Where-Object{$_.ConfigManagerErrorCode -ne 0} | Select-Object Name, DeviceID
+    #EndRegion Create expander7 and datagrid objects
+Function Get-missingPnPDrivers {
+    Get-WmiObject Win32_PNPEntity | Where-Object{$_.ConfigManagerErrorCode -ne 0} | Select-Object Name, DeviceID
 }
-
-
 $Fields8 = @(
     'Name'
     'DeviceID'
 )
-
-
-
-$BitLocker = Get-missingPnPDrivers
+$PnpDrivers = Get-missingPnPDrivers
 $Datatable8 = New-Object System.Data.DataTable
 [void]$Datatable8.Columns.AddRange($Fields8)
-foreach ($Stat in $BitLocker)
+foreach ($Stat in $PnpDrivers)
 {
     $Array = @()
     Foreach ($Field in $Fields8)
@@ -677,16 +644,13 @@ foreach ($Stat in $BitLocker)
     [void]$Datatable8.Rows.Add($array)
 }
 
-
-    # Create an exander
+    #Region Create expander8 and datagrid objects
     $Expander8 = New-Object System.Windows.Controls.Expander
     $Expander8.Header = "Missing PnP Drivers"
     $Expander8.FontSize = 14
     $Expander8.Padding = 5
     $Expander8.Margin = "5,15,5,0"
 
-
-# Create a datagrid object and populate with datatable
     $DataGrid8 = New-Object System.Windows.Controls.DataGrid
     $DataGrid8.ItemsSource = $Datatable8.DefaultView
     $DataGrid8.CanUserAddRows = $False
@@ -695,10 +659,10 @@ foreach ($Stat in $BitLocker)
     $DataGrid8.FontSize = 10
     $DataGrid8.BorderThickness = 0
     $Expander8.Content = $DataGrid8
-
+    #EndRegion Create an expander8 and datagrid objects
 
     # Assemble controls into a stackpanel
     $StackPanel = New-Object System.Windows.Controls.StackPanel
-    $TextBlock, $Expander2, $Expander4, $Expander6, $Expander7,$Expander8 | foreach {$StackPanel.AddChild($PSItem)}
+    $TextBlock, $Expander2, $Expander4, $Expander6, $Expander7,$Expander8 | ForEach-Object {$StackPanel.AddChild($PSItem)}
 
     New-WPFMessageBox -Title 'Windows Deployment Summary' -Content $StackPanel -TitleBackground MidnightBlue -TitleTextForeground White -Timeout 172800
