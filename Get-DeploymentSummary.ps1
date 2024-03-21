@@ -321,8 +321,7 @@ Function New-WPFMessageBox {
         }
 
         #Region Add the Content
-        If ($Content -is [String])
-        {
+        If ($Content -is [String]){
             # Replace double quotes with single
             If ($Content -match '"')
             {
@@ -331,71 +330,48 @@ Function New-WPFMessageBox {
             # Use a text box for a string value...
             $ContentTextBox = [Windows.Markup.XamlReader]::Load((New-Object -TypeName System.Xml.XmlNodeReader -ArgumentList $ContentTextXaml))
             $Window.FindName('ContentHost').AddChild($ContentTextBox)
-        }
-        Else
-        {
+        }Else{
             # ...or add a WPF element as a child
-            Try
-            {
+            Try{
                 $Window.FindName('ContentHost').AddChild($Content) 
-            }
-            Catch
-            {
+            }Catch{
                 $_
             }        
         }
         #Endregion Add the Content
 
         # Enable window to move when dragged
-        $Window.FindName('Grid').Add_MouseLeftButtonDown({
-            $Window.DragMove()
-        })
+        $Window.FindName('Grid').Add_MouseLeftButtonDown({$Window.DragMove()})
 
         # Activate the window on loading
-        If ($OnLoaded)
-        {
+        If ($OnLoaded){
             $Window.Add_Loaded({
                 $This.Activate()
                 Invoke-Command $OnLoaded
             })
-        }
-        Else
-        {
+        }Else{
             $Window.Add_Loaded({
                 $This.Activate()
             })
         }
-        
-
         # Stop the dispatcher timer if exists
-        If ($OnClosed)
-        {
+        If ($OnClosed){
             $Window.Add_Closed({
-                If ($DispatcherTimer)
-                {
+                If ($DispatcherTimer)                {
                     $DispatcherTimer.Stop()
                 }
                 Invoke-Command $OnClosed
             })
-        }
-        Else
-        {
+        }Else{
             $Window.Add_Closed({
-                If ($DispatcherTimer)
-                {
-                    $DispatcherTimer.Stop()
-                }
+                If ($DispatcherTimer){$DispatcherTimer.Stop()}
             })
         }
-        
-
         # If a window host is provided assign it as the owner
-        If ($WindowHost)
-        {
+        If ($WindowHost){
             $Window.Owner = $WindowHost
             $Window.WindowStartupLocation = "CenterOwner"
         }
-
         # If a timeout value is provided, use a dispatcher timer to close the window when timeout is reached
         If ($Timeout){
             $Stopwatch = New-object System.Diagnostics.Stopwatch
@@ -411,7 +387,6 @@ Function New-WPFMessageBox {
             $Stopwatch.Start()
             $DispatcherTimer.Start()
         }
-
         # Play a sound
         If ($($PSBoundParameters.Sound)){
             $SoundFile = "$env:SystemDrive\Windows\Media\$($PSBoundParameters.Sound).wav"
@@ -426,6 +401,7 @@ Function New-WPFMessageBox {
         $null = $window.Dispatcher.InvokeAsync{$window.ShowDialog()}.Wait()
     }
 }
+#Region Add sub-title
 $WindowsVersion = Get-ComputerInfo | Select-Object WindowsProductName,OSDisplayVersion
 $WindowsName = "$($WindowsVersion.WindowsProductName) $($WindowsVersion.OSDisplayVersion)"
 $TextBlock = New-Object System.Windows.Controls.TextBlock
@@ -434,6 +410,7 @@ $TextBlock.FontSize = "18"
 $TextBlock.Padding = 10
 $TextBlock.Margin = "5,5,5,5"
 $TextBlock.HorizontalAlignment = "Center"
+#EndRegion Add sub-title
 
 Function Get-InstalledApps{
     $CheckApps = (
@@ -469,73 +446,60 @@ foreach ($App in $Apps){
     }
     [void]$Datatable2.Rows.Add($array)
 }
-    #Region Create expander2 and datagrid objects
-    $Expander2 = New-Object System.Windows.Controls.Expander
-    $Expander2.Header = "Applications"
-    $Expander2.FontSize = 14
-    $Expander2.Padding = 5
-    $Expander2.Margin = "5,10,5,0"
+#Region Create expander2 and datagrid objects
+$Expander2 = New-Object System.Windows.Controls.Expander
+$Expander2.Header = "Applications"
+$Expander2.FontSize = 14
+$Expander2.Padding = 5
+$Expander2.Margin = "5,10,5,0"
 
-    $DataGrid2 = New-Object System.Windows.Controls.DataGrid
-    $DataGrid2.ItemsSource = $Datatable2.DefaultView
-    $DataGrid2.CanUserAddRows = $False
-    $DataGrid2.IsReadOnly = $True
-    $DataGrid2.GridLinesVisibility = "None"
-    $DataGrid2.FontSize = 10
-    $DataGrid2.BorderThickness = 0
-    $Expander2.Content = $DataGrid2
-    #EndRegion Create expander2 and datagrid objects
+$DataGrid2 = New-Object System.Windows.Controls.DataGrid
+$DataGrid2.ItemsSource = $Datatable2.DefaultView
+$DataGrid2.CanUserAddRows = $False
+$DataGrid2.IsReadOnly = $True
+$DataGrid2.GridLinesVisibility = "None"
+$DataGrid2.FontSize = 10
+$DataGrid2.BorderThickness = 0
+$Expander2.Content = $DataGrid2
+#EndRegion Create expander2 and datagrid objects
 
-
-#Get specific registry key details 
-
-#Get time zone and regional setting
-Function Get-RegionalSettings
-{
+Function Get-RegionalSettings{
 $timezone = Get-TimeZone |ForEach-Object{$_.Displayname}
 $KeyboardLayoutId = Get-Culture | ForEach-Object{$_.Displayname}
-
     $Reg= New-Object -Type PSObject -Property @{
         'TimeZone' = $timezone
         'KeyboardLayout'   = $KeyboardLayoutId}
     $Reg 
-
 }
 
 $Fields4 = @(
     'TimeZone'
     'KeyboardLayout'
 )
-
 $TimeZone = Get-RegionalSettings
 $Datatable4 = New-Object System.Data.DataTable
 [void]$Datatable4.Columns.AddRange($Fields4)
-foreach ($Time in $TimeZone)
-{
+foreach ($Time in $TimeZone){
     $Array = @()
-    Foreach ($Field in $Fields4)
-    {
-        $array += $Time.$Field
-    }
+    Foreach ($Field in $Fields4){$array += $Time.$Field}
     [void]$Datatable4.Rows.Add($array)
 }
+#Region Create expander4 and datagrid objects
+$Expander4 = New-Object System.Windows.Controls.Expander
+$Expander4.Header = "Regional Settings"
+$Expander4.FontSize = 14
+$Expander4.Padding = 5
+$Expander4.Margin = "5,20,5,0"
 
-    #Region Create expander4 and datagrid objects
-    $Expander4 = New-Object System.Windows.Controls.Expander
-    $Expander4.Header = "Regional Settings"
-    $Expander4.FontSize = 14
-    $Expander4.Padding = 5
-    $Expander4.Margin = "5,20,5,0"
-
-    $DataGrid4 = New-Object System.Windows.Controls.DataGrid
-    $DataGrid4.ItemsSource = $Datatable4.DefaultView
-    $DataGrid4.CanUserAddRows = $False
-    $DataGrid4.IsReadOnly = $True
-    $DataGrid4.GridLinesVisibility = "None"
-    $DataGrid4.FontSize = 10
-    $DataGrid4.BorderThickness = 0
-    $Expander4.Content = $DataGrid4
-    #EndRegion Create expander4 and datagrid objects
+$DataGrid4 = New-Object System.Windows.Controls.DataGrid
+$DataGrid4.ItemsSource = $Datatable4.DefaultView
+$DataGrid4.CanUserAddRows = $False
+$DataGrid4.IsReadOnly = $True
+$DataGrid4.GridLinesVisibility = "None"
+$DataGrid4.FontSize = 10
+$DataGrid4.BorderThickness = 0
+$Expander4.Content = $DataGrid4
+#EndRegion Create expander4 and datagrid objects
 Function Get-GPOStatus {
     $Lang = Get-SystemLanguage
     switch ($Lang) {
@@ -550,10 +514,10 @@ Function Get-GPOStatus {
     }
     $GPO= New-Object -Type PSObject -Property @{
         'For User' = $userPolicy
-        'For System'= $syspolicy}
+        'For System'= $syspolicy
+    }
     $GPO 
 }
-
 $Fields6 = @(
     'For User'
     'For System'
@@ -564,33 +528,29 @@ $Datatable6 = New-Object System.Data.DataTable
 [void]$Datatable6.Columns.AddRange($Fields6)
 foreach ($Rec in $GPO){
     $Array = @()
-    Foreach ($Field in $Fields6)
-    {
-        $array += $Rec.$Field
-    }
+    Foreach ($Field in $Fields6){$array += $Rec.$Field}
     [void]$Datatable6.Rows.Add($array)
 }
-    #Region Create expander6 and datagrid objects
-    $Expander6 = New-Object System.Windows.Controls.Expander
-    $Expander6.Header = "Group Policy Update (Last Time)"
-    $Expander6.FontSize = 14
-    $Expander6.Padding = 5
-    $Expander6.Margin = "5,15,5,0"
+#Region Create expander6 and datagrid objects
+$Expander6 = New-Object System.Windows.Controls.Expander
+$Expander6.Header = "Group Policy Update (Last Time)"
+$Expander6.FontSize = 14
+$Expander6.Padding = 5
+$Expander6.Margin = "5,15,5,0"
 
-    $DataGrid6 = New-Object System.Windows.Controls.DataGrid
-    $DataGrid6.ItemsSource = $Datatable6.DefaultView
-    $DataGrid6.CanUserAddRows = $False
-    $DataGrid6.IsReadOnly = $True
-    $DataGrid6.GridLinesVisibility = "None"
-    $DataGrid6.FontSize = 10
-    $DataGrid6.BorderThickness = 0
-    $Expander6.Content = $DataGrid6
-    #EndRegion Create expander6 and datagrid objects
+$DataGrid6 = New-Object System.Windows.Controls.DataGrid
+$DataGrid6.ItemsSource = $Datatable6.DefaultView
+$DataGrid6.CanUserAddRows = $False
+$DataGrid6.IsReadOnly = $True
+$DataGrid6.GridLinesVisibility = "None"
+$DataGrid6.FontSize = 10
+$DataGrid6.BorderThickness = 0
+$Expander6.Content = $DataGrid6
+#EndRegion Create expander6 and datagrid objects
 
 Function Get-BitlockerStatus{
 Get-BitLockerVolume | Select-Object Mountpoint,VolumeType, volumestatus, EncryptionPercentage
 }
-
 $Fields7 = @(
     'MountPoint'
     'VolumeType'
@@ -602,28 +562,26 @@ $Datatable7 = New-Object System.Data.DataTable
 [void]$Datatable7.Columns.AddRange($Fields7)
 foreach ($Stat in $BitLocker){
     $Array = @()
-    Foreach ($Field in $Fields7){
-        $array += $Stat.$Field
-    }
+    Foreach ($Field in $Fields7){$array += $Stat.$Field}
     [void]$Datatable7.Rows.Add($array)
 }
 
-    #Region Create expander7 and datagrid objects
-    $Expander7 = New-Object System.Windows.Controls.Expander
-    $Expander7.Header = "Bitlocker Status"
-    $Expander7.FontSize = 14
-    $Expander7.Padding = 5
-    $Expander7.Margin = "5,15,5,0"
+#Region Create expander7 and datagrid objects
+$Expander7 = New-Object System.Windows.Controls.Expander
+$Expander7.Header = "Bitlocker Status"
+$Expander7.FontSize = 14
+$Expander7.Padding = 5
+$Expander7.Margin = "5,15,5,0"
 
-    $DataGrid7 = New-Object System.Windows.Controls.DataGrid
-    $DataGrid7.ItemsSource = $Datatable7.DefaultView
-    $DataGrid7.CanUserAddRows = $False
-    $DataGrid7.IsReadOnly = $True
-    $DataGrid7.GridLinesVisibility = "None"
-    $DataGrid7.FontSize = 10
-    $DataGrid7.BorderThickness = 0
-    $Expander7.Content = $DataGrid7
-    #EndRegion Create expander7 and datagrid objects
+$DataGrid7 = New-Object System.Windows.Controls.DataGrid
+$DataGrid7.ItemsSource = $Datatable7.DefaultView
+$DataGrid7.CanUserAddRows = $False
+$DataGrid7.IsReadOnly = $True
+$DataGrid7.GridLinesVisibility = "None"
+$DataGrid7.FontSize = 10
+$DataGrid7.BorderThickness = 0
+$Expander7.Content = $DataGrid7
+#EndRegion Create expander7 and datagrid objects
 Function Get-missingPnPDrivers {
     Get-WmiObject Win32_PNPEntity | Where-Object{$_.ConfigManagerErrorCode -ne 0} | Select-Object Name, DeviceID
 }
