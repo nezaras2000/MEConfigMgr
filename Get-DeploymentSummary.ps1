@@ -47,7 +47,6 @@ Function New-WPFMessageBox {
         [Parameter(Mandatory=$false,Position=13,HelpMessage="Code for Window Closed event")]
         [scriptblock]$OnClosed
     )
-    # Dynamically Populated parameters
     DynamicParam {
         Add-Type -AssemblyName System.Drawing, PresentationCore
 
